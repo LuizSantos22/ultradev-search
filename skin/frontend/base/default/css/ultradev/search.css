@@ -290,3 +290,13 @@
     margin: 0 !important;
     padding: 0 8px !important;
 }
+
+/* ── Corrige posição do bis-btn com botão de submit presente ─────── */
+.form-search .button {
+    position: relative;
+    z-index: 1;
+}
+
+#bis-btn {
+    right: 46px !important;
+}
