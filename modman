@@ -4,4 +4,4 @@ app/design/frontend/base/default/layout/ultradev_search.xml                 app/
 app/design/frontend/base/default/template/ultradev/search                   app/design/frontend/base/default/template/ultradev/search
 app/locale/pt_BR/UltraDev_Search.csv                                        app/locale/pt_BR/UltraDev_Search.csv
 skin/frontend/base/default/css/ultradev/search.css                          skin/frontend/base/default/css/ultradev/search.css
-skin/frontend/base/default/js/ultradev/search                               skin/frontend/base/default/js/ultradev/search
+skin/frontend/ultimo/default/js/ultradev/search                             skin/frontend/ultimo/default/js/ultradev/search
