@@ -1,0 +1,418 @@
+<?php
+$helper = $this->helper('ultradev_search');
+?>
+<?php if ($helper->isEnabled()): ?>
+<script type="text/javascript">
+//<![CDATA[
+
+// ─── Voice Search ─────────────────────────────────────────────────────────
+(function () {
+    function initVoiceSearch() {
+        var searchInput = document.getElementById('search');
+        if (!searchInput) return;
+        if (document.getElementById('bvs-btn')) return;
+
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) return;
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') return;
+
+        var btn = document.createElement('button');
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('id', 'bvs-btn');
+        btn.setAttribute('aria-label', '<?php echo $this->__('Search by voice') ?>');
+        btn.title = '<?php echo $this->__('Search by voice') ?>';
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+
+        var formSearch = jQuery(searchInput).closest('.form-search')[0] || searchInput.parentNode;
+        formSearch.style.position = 'relative';
+        formSearch.appendChild(btn);
+
+        var recognition = new SR();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = /Mobi|Android/i.test(navigator.userAgent);
+        recognition.interimResults = /Mobi|Android/i.test(navigator.userAgent);
+        recognition.maxAlternatives = 1;
+
+        var listening = false, recognizing = false;
+
+        function stopListening() {
+            if (!listening) return;
+            listening = false; recognizing = false;
+            btn.classList.remove('bvs-listening');
+            btn.title = '<?php echo $this->__('Search by voice') ?>';
+        }
+
+        recognition.onstart = function () {
+            listening = true; recognizing = true;
+            btn.classList.add('bvs-listening');
+            btn.title = '<?php echo $this->__('Listening… click to cancel') ?>';
+        };
+
+        recognition.onresult = function (e) {
+            if (!e.results || !e.results.length) return;
+            var last = e.results[e.results.length - 1];
+            if (!last.isFinal) return;
+            var transcript = last[0].transcript;
+            if (!transcript) return;
+            searchInput.value = transcript;
+            ['input','keyup'].forEach(function(t){
+                var ev = document.createEvent('Event');
+                ev.initEvent(t, true, true);
+                searchInput.dispatchEvent(ev);
+            });
+            try { recognition.stop(); } catch(er) {}
+            stopListening();
+        };
+
+        recognition.onerror = function (e) {
+            if (e.error === 'not-allowed') {
+                alert('<?php echo $this->__('Microphone permission denied.') ?>');
+            }
+            stopListening();
+        };
+
+        recognition.onend = function () { stopListening(); };
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            if (listening) { try { recognition.stop(); } catch(er) {} return; }
+            try { recognition.start(); } catch(er) {}
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVoiceSearch);
+    } else {
+        initVoiceSearch();
+    }
+})();
+
+<?php if ($helper->isImageSearchEnabled()): ?>
+// ─── Image Search ──────────────────────────────────────────────────────────
+(function () {
+    function initImageSearch() {
+        var searchInput = document.getElementById('search');
+        if (!searchInput) return;
+        if (document.getElementById('bis-btn')) return;
+
+        var btn = document.createElement('button');
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('id', 'bis-btn');
+        btn.setAttribute('aria-label', '<?php echo $this->__('Search by image') ?>');
+        btn.title = '<?php echo $this->__('Search by image') ?>';
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+
+        var fileInput = document.createElement('input');
+        fileInput.setAttribute('type', 'file');
+        fileInput.setAttribute('accept', 'image/*');
+        fileInput.setAttribute('id', 'bis-file');
+        fileInput.style.display = 'none';
+
+        var formSearch = jQuery(searchInput).closest('.form-search')[0] || searchInput.parentNode;
+        formSearch.appendChild(btn);
+        formSearch.appendChild(fileInput);
+
+        var analyzeUrl = '<?php echo $helper->getImageSearchAnalyzeUrl() ?>';
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function () {
+            var file = fileInput.files[0];
+            if (!file) return;
+
+            btn.style.opacity = '0.4';
+            btn.disabled = true;
+            btn.title = '<?php echo $this->__('Analyzing image…') ?>';
+
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                var parts    = ev.target.result.split(',');
+                var mimeType = parts[0].replace('data:', '').replace(';base64', '');
+                var base64   = parts[1];
+
+                fetch(analyzeUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64, mime_type: mimeType })
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.query) {
+                        searchInput.value = data.query;
+                        ['input','keyup'].forEach(function(t){
+                            var ev = document.createEvent('Event');
+                            ev.initEvent(t, true, true);
+                            searchInput.dispatchEvent(ev);
+                        });
+                        searchInput.focus();
+                    } else if (data.error === 'limit_reached') {
+                        alert('<?php echo $this->__('Image search limit reached for this month.') ?>');
+                    } else {
+                        alert('<?php echo $this->__('Could not identify the image. Please try again.') ?>');
+                    }
+                })
+                .catch(function () {
+                    alert('<?php echo $this->__('Error analyzing image. Please try again.') ?>');
+                })
+                .finally(function () {
+                    btn.style.opacity = '';
+                    btn.disabled = false;
+                    btn.title = '<?php echo $this->__('Search by image') ?>';
+                    fileInput.value = '';
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initImageSearch);
+    } else {
+        initImageSearch();
+    }
+})();
+<?php endif; ?>
+
+// ─── Autocomplete ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+
+    Ajax.Autocompleter.prototype.getUpdatedChoices = function() { return false; };
+    jQuery('#search').removeClass('required-entry');
+
+    var priceFormat    = <?php echo $this->helper('core')->jsonEncode($helper->getJsPriceFormat()) ?>;
+    var baseUrl        = '<?php echo $helper->getBaseUrl() ?>';
+    var baseUrlMedia   = '<?php echo $helper->getBaseUrlMedia() ?>';
+    var imgPlaceholder = '<?php echo Mage::getModel('catalog/product')->getSmallImageUrl(100, 100); ?>';
+    var searchUrl      = '<?php echo $this->getUrl('catalogsearch/result') ?>';
+    var isMobile       = window.innerWidth <= 768;
+
+    window.addEventListener('resize', function () { isMobile = window.innerWidth <= 768; });
+
+    function levenshtein(a, b) {
+        var m = a.length, n = b.length, dp = [];
+        for (var i = 0; i <= m; i++) {
+            dp[i] = [i];
+            for (var j = 1; j <= n; j++) {
+                dp[i][j] = i === 0 ? j : Math.min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+            }
+        }
+        return dp[m][n];
+    }
+
+    function normalize(str) {
+        return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[-\/\\_.]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function fuzzyMatchWord(queryWord, name) {
+        if (name.indexOf(queryWord) !== -1) return true;
+        var nameWords = name.split(' ');
+        var threshold = queryWord.length <= 3 ? 1 : 2;
+        for (var i = 0; i < nameWords.length; i++) {
+            if (levenshtein(queryWord, nameWords[i].substring(0, queryWord.length + 2)) <= threshold) return true;
+        }
+        return false;
+    }
+
+    function fuzzyMatch(query, name) {
+        var q = normalize(query), n = normalize(name);
+        if (n.indexOf(q) !== -1) return true;
+        var queryWords = q.split(/\s+/);
+        for (var i = 0; i < queryWords.length; i++) {
+            if (!fuzzyMatchWord(queryWords[i], n)) return false;
+        }
+        return true;
+    }
+
+    function skuMatch(query, sku) {
+        if (!sku) return false;
+        return normalize(sku).indexOf(normalize(query)) !== -1;
+    }
+
+    var engine = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        limit: <?php echo $helper->getLimit() ?>,
+        <?php if ($helper->getUseLocalStorage()): ?>
+        prefetch: { url: '<?php echo $this->getUrl('ultradevsearch/product/json') ?>', ttl: <?php echo $helper->getCacheLifetime() * 1000 ?> }
+        <?php else: ?>
+        remote: { url: '<?php echo $this->getUrl('ultradevsearch/product/json') ?>' }
+        <?php endif; ?>
+    });
+    engine.initialize();
+
+    jQuery.getJSON('<?php echo $this->getUrl('ultradevsearch/product/json') ?>', function (data) {
+        window._ultradevAllProducts = data;
+    });
+
+    function fuzzySource(query, syncResults, asyncResults) {
+        engine.search(query,
+            function (exactResults) {
+                if (exactResults.length > 0) {
+                    syncResults(exactResults);
+                } else if (window._ultradevAllProducts) {
+                    syncResults(window._ultradevAllProducts.filter(function (p) {
+                        return skuMatch(query, p.sku) || fuzzyMatch(query, p.name);
+                    }).slice(0, <?php echo $helper->getLimit() ?>));
+                } else {
+                    syncResults([]);
+                }
+            },
+            function (r) { asyncResults(r); }
+        );
+    }
+
+    function escHtml(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function fmtPrice(product) {
+        if (parseFloat(product.final_price) < parseFloat(product.price)) {
+            return '<span class="tt-card-price-old">' + formatCurrency(product.price, priceFormat, false) + '</span> ' +
+                   '<span class="tt-card-price">' + formatCurrency(product.final_price, priceFormat, false) + '</span>';
+        }
+        return '<span class="tt-card-price">' + formatCurrency(product.price, priceFormat, false) + '</span>';
+    }
+
+    function getMenuCategories() {
+        var cats = [];
+        jQuery('#mainmenu > ul > li.nav-item--parent > a.level-top').each(function () {
+            var $a = jQuery(this);
+            cats.push({ name: $a.find('span').first().text().trim(), url: $a.attr('href') });
+        });
+        return cats;
+    }
+
+    function positionDropdown($menu) {
+        var $container = jQuery('.hp-blocks-holder');
+        if (!$container.length) $container = jQuery('.header-primary .inner-container');
+        var offset = $container.offset();
+        $menu.css({ top: offset.top + $container.outerHeight() + 'px', left: offset.left + 'px', width: $container.outerWidth() + 'px' });
+    }
+
+    function positionDropdownMobile($menu) {
+        var $input  = jQuery('#search');
+        var offset  = $input.closest('.form-search').offset();
+        var top     = offset.top + $input.closest('.form-search').outerHeight();
+        $menu.css({ top: top + 'px', left: 0, width: '100%' });
+    }
+
+    var $ttMenu = null;
+
+    function buildMenu(query, products) {
+        var html = '';
+
+        if (isMobile) {
+            var listHtml = '';
+            if (products.length) {
+                products.slice(0, 6).forEach(function (p) {
+                    var img = imgPlaceholder;
+                    if (p.thumbnail && p.thumbnail !== 'no_selection') img = baseUrlMedia + p.thumbnail;
+                    var skuHtml = (p.sku && skuMatch(query, p.sku)) ? '<div class="tt-card-sku">SKU: ' + escHtml(p.sku) + '</div>' : '';
+                    listHtml += '<a class="tt-product-card" href="' + baseUrl + p.url_path + '">' +
+                        '<img src="' + escHtml(img) + '" alt="' + escHtml(p.name) + '" loading="lazy"/>' +
+                        '<div class="tt-card-body"><div class="tt-card-name">' + escHtml(p.name) + '</div>' + skuHtml +
+                        '<div>' + fmtPrice(p) + '</div></div><span class="tt-card-arrow">›</span></a>';
+                });
+                listHtml += '<a class="tt-see-all" href="' + searchUrl + '?q=' + encodeURIComponent(query) + '">' +
+                    '<?php echo $this->__('See all results for') ?> &ldquo;' + escHtml(query) + '&rdquo; &rarr;</a>';
+            } else {
+                listHtml = '<div class="tt-empty-state"><?php echo $this->__('No products found') ?></div>';
+            }
+            html = '<div class="tt-col-right"><div class="tt-col-right-title"><?php echo $this->__('Products') ?></div>' +
+                   '<div class="tt-products-grid">' + listHtml + '</div></div>';
+
+        } else {
+            var allCats = getMenuCategories();
+            var cats = allCats.filter(function (c) {
+                return c.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+            }).slice(0, 4);
+            if (!cats.length) cats = allCats.slice(0, 4);
+
+            var seen = {}, sugs = [];
+            products.slice(0, 8).forEach(function (p) {
+                p.name.split(/\s+/).forEach(function (w) {
+                    var wl = w.toLowerCase();
+                    if (wl.indexOf(query.toLowerCase()) !== -1 && wl.length > 2 && !seen[wl]) {
+                        seen[wl] = true; sugs.push(w);
+                    }
+                });
+            });
+            if (!seen[query.toLowerCase()]) sugs.unshift(query);
+            sugs = sugs.slice(0, 6);
+
+            var leftHtml = '<div class="tt-col-left">';
+            if (sugs.length) {
+                leftHtml += '<div class="tt-col-left-title"><?php echo $this->__('Suggestions') ?></div>';
+                sugs.forEach(function (s) {
+                    leftHtml += '<a class="tt-suggestion-text" href="' + searchUrl + '?q=' + encodeURIComponent(s) + '">' +
+                        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+                        escHtml(s) + '</a>';
+                });
+            }
+            leftHtml += '<div class="tt-categories-section"><div class="tt-col-left-title"><?php echo $this->__('Categories') ?></div>';
+            cats.forEach(function (c) {
+                leftHtml += '<a class="tt-suggestion-text" href="' + escHtml(c.url) + '">' +
+                    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>' +
+                    escHtml(c.name) + '</a>';
+            });
+            leftHtml += '</div></div>';
+
+            var rightHtml = '<div class="tt-col-right"><div class="tt-col-right-title"><?php echo $this->__('Products') ?></div>';
+            if (products.length) {
+                rightHtml += '<div class="tt-products-grid">';
+                products.slice(0, 8).forEach(function (p) {
+                    var img = imgPlaceholder;
+                    if (p.thumbnail && p.thumbnail !== 'no_selection') img = baseUrlMedia + p.thumbnail;
+                    var skuHtml = (p.sku && skuMatch(query, p.sku)) ? '<div class="tt-card-sku">SKU: ' + escHtml(p.sku) + '</div>' : '';
+                    rightHtml += '<a class="tt-product-card" href="' + baseUrl + p.url_path + '">' +
+                        '<img src="' + escHtml(img) + '" alt="' + escHtml(p.name) + '" loading="lazy"/>' +
+                        '<div class="tt-card-name">' + escHtml(p.name) + '</div>' + skuHtml +
+                        '<div>' + fmtPrice(p) + '</div></a>';
+                });
+                rightHtml += '</div>';
+            } else {
+                rightHtml += '<div class="tt-empty-state"><?php echo $this->__('No products found') ?></div>';
+            }
+            rightHtml += '</div>';
+            html = leftHtml + rightHtml;
+        }
+
+        if (!$ttMenu) { $ttMenu = jQuery('<div class="tt-menu"></div>').appendTo('body'); }
+        $ttMenu.html(html).addClass('tt-open').show();
+        if (isMobile) positionDropdownMobile($ttMenu); else positionDropdown($ttMenu);
+    }
+
+    function closeMenu() { if ($ttMenu) $ttMenu.removeClass('tt-open').hide(); }
+
+    var _debounce;
+    jQuery('#search').on('input keyup', function () {
+        var query = jQuery(this).val().trim();
+        if (query.length < <?php echo $helper->getMinLength() ?>) { closeMenu(); return; }
+        clearTimeout(_debounce);
+        _debounce = setTimeout(function () {
+            fuzzySource(query,
+                function (r) { buildMenu(query, r); },
+                function (r) { if (r && r.length) buildMenu(query, r); }
+            );
+        }, 120);
+    });
+
+    jQuery(document).on('click', function (e) {
+        if (!jQuery(e.target).closest('#search, .tt-menu').length) closeMenu();
+    });
+
+    jQuery(window).on('resize', function () {
+        if ($ttMenu && $ttMenu.hasClass('tt-open')) {
+            if (isMobile) positionDropdownMobile($ttMenu); else positionDropdown($ttMenu);
+        }
+    });
+
+    jQuery('#search').on('keydown', function (e) { if (e.which === 13) closeMenu(); });
+});
+
+//]]>
+</script>
+<?php endif; ?>
