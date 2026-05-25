@@ -268,3 +268,25 @@
 #bis-btn:disabled {
     cursor: wait;
 }
+
+/* ── Ultimo theme — fix button positioning ────────────────────────── */
+.form-search {
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+}
+
+.form-search .input-text {
+    flex: 1 !important;
+}
+
+.form-search #bvs-btn,
+.form-search #bis-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 8px !important;
+}
