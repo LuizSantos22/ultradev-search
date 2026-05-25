@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<config>
+    <tabs>
+        <ultradev translate="label">
+            <label>UltraDev</label>
+            <sort_order>1100</sort_order>
+        </ultradev>
+    </tabs>
+    <sections>
+        <ultradev_search translate="label" module="ultradev_search">
+            <label>UltraDev Search</label>
+            <tab>ultradev</tab>
+            <sort_order>10</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <general translate="label">
+                    <label>General Settings</label>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enable translate="label">
+                            <label>Enable Autocomplete</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable>
+                        <limit translate="label comment">
+                            <label>Suggestions Limit</label>
+                            <comment><![CDATA[Number of suggestions to display. Default: 5.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>validate-greater-than-zero validate-number</validate>
+                        </limit>
+                        <min_length translate="label comment">
+                            <label>Minimum Length</label>
+                            <comment><![CDATA[Minimum characters before suggestions appear. Default: 1.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>validate-greater-than-zero validate-number</validate>
+                        </min_length>
+                        <cache_lifetime translate="label comment">
+                            <label>Cache Lifetime</label>
+                            <comment><![CDATA[Seconds to cache product data in local storage. Default: 86400 (1 day).]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>validate-greater-than-zero validate-number</validate>
+                        </cache_lifetime>
+                        <use_local_storage translate="label comment">
+                            <label>Use Local Storage</label>
+                            <comment><![CDATA[Cache product data in browser local storage to reduce requests.]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </use_local_storage>
+                        <enable_jquery translate="label comment">
+                            <label>Enable jQuery</label>
+                            <comment><![CDATA[Disable if your theme already includes jQuery.]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_jquery>
+                    </fields>
+                </general>
+                <imagesearch translate="label">
+                    <label>Image Search</label>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enable translate="label">
+                            <label>Enable Image Search</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable>
+                        <provider translate="label comment">
+                            <label>AI Provider</label>
+                            <comment><![CDATA[Google Vision: stable, 1000 free requests/month. Gemini Flash: generative, 1500 free requests/day.]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>ultradev_search/system_config_source_provider</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </provider>
+                        <api_key_primary translate="label comment">
+                            <label>API Key (Primary)</label>
+                            <comment><![CDATA[Primary API key for the selected provider.]]></comment>
+                            <frontend_type>obscure</frontend_type>
+                            <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_key_primary>
+                        <api_key_fallback translate="label comment">
+                            <label>API Key (Fallback)</label>
+                            <comment><![CDATA[Used automatically when primary key approaches the request limit.]]></comment>
+                            <frontend_type>obscure</frontend_type>
+                            <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_key_fallback>
+                        <request_limit translate="label comment">
+                            <label>Monthly Request Limit</label>
+                            <comment><![CDATA[Switch to fallback key (or disable) when this limit is reached. Default: 950 (leaves buffer before Google's 1000 free tier cap).]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>validate-greater-than-zero validate-number</validate>
+                        </request_limit>
+                    </fields>
+                </imagesearch>
+            </groups>
+        </ultradev_search>
+    </sections>
+</config>
