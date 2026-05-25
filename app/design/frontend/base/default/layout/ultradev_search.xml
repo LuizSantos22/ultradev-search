@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+        <reference name="head">
+            <action method="addItem" ifconfig="ultradev_search/general/enable_jquery">
+                <type>skin_js</type>
+                <script>js/ultradev/search/jquery-1.10.2.min.js</script>
+            </action>
+            <action method="addItem" ifconfig="ultradev_search/general/enable_jquery">
+                <type>skin_js</type>
+                <script>js/ultradev/search/noconflict.js</script>
+            </action>
+            <action method="addItem" ifconfig="ultradev_search/general/enable">
+                <type>skin_js</type>
+                <script>js/ultradev/search/typeahead.bundle.js</script>
+                <params>defer="defer"</params>
+            </action>
+            <action method="addItem" ifconfig="ultradev_search/general/enable">
+                <type>skin_css</type>
+                <name>css/ultradev/search.css</name>
+            </action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="core/template" name="ultradev.search.js" template="ultradev/search/js.phtml" />
+        </reference>
+    </default>
+</layout>
