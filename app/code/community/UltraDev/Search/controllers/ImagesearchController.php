@@ -37,7 +37,7 @@ class UltraDev_Search_ImagesearchController extends Mage_Core_Controller_Front_A
         $mimeType = $data['mime_type'];
 
         // Basic validation
-        $allowedMimes = array('image/jpeg', 'image/png', 'image/webp', 'image/gif');
+       $allowedMimes = array('image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif');
         if (!in_array($mimeType, $allowedMimes)) {
             $this->getResponse()->setHttpResponseCode(400);
             return $this->getResponse()->setBody(json_encode(array('error' => 'invalid_mime')));
