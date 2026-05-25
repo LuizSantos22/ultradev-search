@@ -45,7 +45,7 @@
         <layout>
             <updates>
                 <ultradev_search>
-                    <file>ultradev/search.xml</file>
+                    <file>ultradev_search.xml</file>
                 </ultradev_search>
             </updates>
         </layout>
