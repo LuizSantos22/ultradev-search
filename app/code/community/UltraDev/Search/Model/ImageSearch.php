@@ -136,7 +136,7 @@ class UltraDev_Search_Model_ImageSearch extends Mage_Core_Model_Abstract
 
     protected function _callGemini($base64, $mimeType, $apiKey)
     {
-        $model = 'gemini-2.5-flash-lite';
+        $model = Mage::getStoreConfig('ultradev_search/image_search/gemini_model') ?: 'gemini-2.5-flash-lite';
         $url   = 'https://generativelanguage.googleapis.com/v1beta/models/'
                . $model . ':generateContent?key=' . urlencode($apiKey);
 
