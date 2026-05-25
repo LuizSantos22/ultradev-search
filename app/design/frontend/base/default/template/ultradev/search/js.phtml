@@ -123,9 +123,16 @@ $helper = $this->helper('ultradev_search');
             var file = fileInput.files[0];
             if (!file) return;
 
-            btn.style.opacity = '0.4';
-            btn.disabled = true;
-            btn.title = '<?php echo $this->__('Analyzing image…') ?>';
+            btn._origSvg = btn.innerHTML;
+btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:bis-spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+btn.disabled = true;
+btn.title = '<?php echo $this->__('Analyzing image…') ?>';
+if (!document.getElementById('bis-spin-style')) {
+    var s = document.createElement('style');
+    s.id = 'bis-spin-style';
+    s.textContent = '@keyframes bis-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+    document.head.appendChild(s);
+}
 
             var reader = new FileReader();
             reader.onload = function (ev) {
@@ -158,9 +165,9 @@ $helper = $this->helper('ultradev_search');
                     alert('<?php echo $this->__('Error analyzing image. Please try again.') ?>');
                 })
                 .finally(function () {
-                    btn.style.opacity = '';
-                    btn.disabled = false;
-                    btn.title = '<?php echo $this->__('Search by image') ?>';
+                   btn.innerHTML = btn._origSvg || btn.innerHTML;
+btn.disabled = false;
+btn.title = '<?php echo $this->__('Search by image') ?>';
                     fileInput.value = '';
                 });
             };
