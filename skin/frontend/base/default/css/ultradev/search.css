@@ -3,300 +3,267 @@
     position: fixed;
     background: #fff;
     border: 1px solid #ddd;
-    border-top: none;
-    box-shadow: 0 6px 24px rgba(0,0,0,.10);
-    z-index: 10000;
+    border-top: 3px solid #2c85c8;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    z-index: 200000;
     display: none;
     flex-direction: row;
     box-sizing: border-box;
     border-radius: 0 0 6px 6px;
 }
+.tt-menu.tt-open { display: flex; }
 
-.tt-menu.tt-open {
-    display: flex;
-}
-
-/* ── Left column (suggestions + categories) ──────────────────────── */
+/* ── Left column ──────────────────────────────────────────────────── */
 .tt-col-left {
-    width: 220px;
+    width: 260px;
     min-width: 220px;
-    border-right: 1px solid #f0f0f0;
+    border-right: 1px solid #eee;
     padding: 16px 0;
     flex-shrink: 0;
 }
-
 .tt-col-left-title,
 .tt-col-right-title {
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .06em;
+    letter-spacing: .08em;
     color: #999;
     padding: 0 16px 8px;
 }
-
 .tt-suggestion-text {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 7px 16px;
-    font-size: 13px;
+    padding: 8px 16px;
+    font-size: 14px;
     color: #333;
     text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
-
-.tt-suggestion-text:hover {
-    background: #f5f5f5;
-    color: #0066cc;
-}
-
-.tt-suggestion-text svg {
-    flex-shrink: 0;
-    color: #aaa;
-}
-
+.tt-suggestion-text:hover { background: #f5f5f5; color: #2c85c8; }
+.tt-suggestion-text svg { flex-shrink: 0; opacity: 0.4; }
 .tt-categories-section {
-    margin-top: 12px;
-    border-top: 1px solid #f0f0f0;
-    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
 }
 
-/* ── Right column (products) ─────────────────────────────────────── */
-.tt-col-right {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-    max-height: 480px;
-}
-
+/* ── Right column ─────────────────────────────────────────────────── */
+.tt-col-right { flex: 1; padding: 16px; overflow: hidden; }
+.tt-col-right-title { margin-bottom: 12px; }
 .tt-products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
 }
-
 .tt-product-card {
-    display: flex;
-    flex-direction: column;
+    display: block;
     text-decoration: none;
     color: #333;
     border: 1px solid #eee;
     border-radius: 4px;
-    overflow: hidden;
-    transition: box-shadow .15s;
+    padding: 8px;
+    transition: border-color .2s, box-shadow .2s;
 }
-
 .tt-product-card:hover {
-    box-shadow: 0 2px 12px rgba(0,0,0,.12);
-    border-color: #ccc;
+    border-color: #2c85c8;
+    box-shadow: 0 2px 8px rgba(44,133,200,.12);
+    color: #333;
+    text-decoration: none;
 }
-
 .tt-product-card img {
     width: 100%;
-    aspect-ratio: 1;
+    height: 100px;
     object-fit: contain;
-    background: #fafafa;
-    padding: 8px;
-    box-sizing: border-box;
+    display: block;
+    margin-bottom: 6px;
 }
-
-.tt-card-name {
+.tt-product-card .tt-card-name {
     font-size: 12px;
-    padding: 6px 8px 2px;
     line-height: 1.3;
-    flex: 1;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
-
-.tt-card-sku {
-    font-size: 10px;
-    color: #999;
-    padding: 0 8px;
-}
-
-.tt-card-price {
+.tt-product-card .tt-card-price {
     font-size: 13px;
     font-weight: 700;
-    color: #e00;
-    padding: 4px 8px 8px;
-    display: block;
+    color: #2c85c8;
 }
-
-.tt-card-price-old {
+.tt-product-card .tt-card-price-old {
     font-size: 11px;
-    color: #aaa;
-    text-decoration: line-through;
-    padding: 4px 8px 0;
-    display: block;
-}
-
-.tt-see-all {
-    display: block;
-    margin-top: 12px;
-    padding: 10px;
-    text-align: center;
-    background: #f5f5f5;
-    border-radius: 4px;
-    font-size: 13px;
-    color: #0066cc;
-    text-decoration: none;
-    grid-column: 1 / -1;
-}
-
-.tt-see-all:hover {
-    background: #e8f0fe;
-}
-
-.tt-empty-state {
     color: #999;
-    font-size: 13px;
-    padding: 16px 0;
+    text-decoration: line-through;
 }
+.tt-empty-state {
+    padding: 32px 16px;
+    color: #999;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* ── SKU ──────────────────────────────────────────────────────────── */
+.tt-card-sku { font-size: 11px; color: #999; margin-top: 2px; margin-bottom: 2px; }
 
 /* ── Mobile ──────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .tt-menu.tt-open {
-        flex-direction: column;
-    }
-
-    .tt-col-left {
-        display: none;
-    }
-
-    .tt-col-right {
-        max-height: 60vh;
-        padding: 12px;
-    }
-
-    .tt-products-grid {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-
-    .tt-product-card {
-        flex-direction: row;
-        border-radius: 0;
-        border: none;
+    .tt-menu.tt-open { flex-direction: column !important; }
+    .tt-col-left { display: none !important; }
+    .tt-col-right { padding: 0; }
+    .tt-col-right-title {
+        font-size: 10px;
+        padding: 6px 12px 4px;
+        margin-bottom: 0;
+        background: #fafafa;
         border-bottom: 1px solid #f0f0f0;
     }
-
-    .tt-product-card img {
-        width: 64px;
-        min-width: 64px;
-        aspect-ratio: 1;
-        padding: 6px;
-    }
-
-    .tt-card-body {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 8px;
-    }
-
-    .tt-card-name {
-        padding: 0 0 2px;
-        font-size: 13px;
-    }
-
-    .tt-card-sku {
-        padding: 0;
-    }
-
-    .tt-card-price {
-        padding: 2px 0 0;
-        font-size: 13px;
-    }
-
-    .tt-card-price-old {
-        padding: 0;
-        font-size: 11px;
-    }
-
-    .tt-card-arrow {
+    .tt-products-grid { display: block; }
+    .tt-product-card {
         display: flex;
         align-items: center;
-        padding-right: 12px;
-        color: #ccc;
-        font-size: 20px;
+        gap: 10px;
+        border: none;
+        border-bottom: 1px solid #f2f2f2;
+        border-radius: 0;
+        padding: 9px 12px;
+        box-shadow: none;
     }
+    .tt-product-card:hover { border-color: #f2f2f2; box-shadow: none; background: #f8f8f8; }
+    .tt-product-card img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        flex-shrink: 0;
+        margin-bottom: 0;
+        background: #f7f7f7;
+        border-radius: 6px;
+    }
+    .tt-card-body { flex: 1; min-width: 0; }
+    .tt-product-card .tt-card-name { font-size: 12px; -webkit-line-clamp: 2; margin-bottom: 2px; }
+    .tt-product-card .tt-card-price { font-size: 12px; }
+    .tt-product-card .tt-card-price-old {
+        font-size: 11px;
+        color: #999;
+        text-decoration: line-through;
+        display: block;
+        margin-bottom: 1px;
+    }
+    .tt-card-sku { font-size: 10px; }
+    .tt-card-arrow { color: #ccc; font-size: 16px; flex-shrink: 0; }
+    .tt-see-all {
+        display: block;
+        text-align: center;
+        padding: 10px 12px;
+        font-size: 12px;
+        color: #2c85c8;
+        text-decoration: none;
+        border-top: 1px solid #eee;
+    }
+    .tt-empty-state { padding: 20px 16px; font-size: 13px; }
 }
 
-/* ── Voice button ─────────────────────────────────────────────────── */
-#bvs-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 6px;
-    color: #888;
-    vertical-align: middle;
-    line-height: 1;
-}
-
-#bvs-btn:hover {
-    color: #333;
-}
-
-#bvs-btn.bvs-listening {
-    color: #e00;
-    animation: bvs-pulse 1s infinite;
-}
-
-@keyframes bvs-pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: .4; }
-}
-
-/* ── Image search button ──────────────────────────────────────────── */
-#bis-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 6px;
-    color: #888;
-    vertical-align: middle;
-    line-height: 1;
-}
-
-#bis-btn:hover {
-    color: #333;
-}
-
-#bis-btn:disabled {
-    cursor: wait;
-}
-
-/* ── Ultimo theme — fix button positioning ────────────────────────── */
+/* ── Overflow fixes ───────────────────────────────────────────────── */
+.header-container,
+.header,
+.header-primary,
 .form-search {
-    display: flex !important;
-    align-items: center !important;
-    position: relative !important;
+    overflow: visible !important;
 }
 
-.form-search .input-text {
-    flex: 1 !important;
+/* ── Voice Search Button ──────────────────────────────────────────── */
+#bvs-btn {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 201;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    padding: 4px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+#bvs-btn:hover { color: #555; }
+#bvs-btn.bvs-listening { color: #cc0000; }
+#bvs-btn.bvs-listening svg { animation: bvs-pulse 1s ease-in-out infinite; }
+@keyframes bvs-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.85); }
 }
 
-.form-search #bvs-btn,
-.form-search #bis-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-    height: 100% !important;
-    margin: 0 !important;
-    padding: 0 8px !important;
+#search {
+    padding-left: 34px !important;
+    padding-right: 60px !important;
 }
 
-/* ── Corrige posição do bis-btn com botão de submit presente ─────── */
-.form-search .button {
-    position: relative;
-    z-index: 1;
+@media (max-width: 768px) {
+    #bvs-btn {
+        display: flex !important;
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        z-index: 30;
+        background: transparent;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+    }
+    #bvs-btn svg { width: 18px; height: 18px; }
+    #search { padding-left: 42px !important; }
+    .form-search { position: relative !important; }
 }
 
+/* ── Image Search Button ──────────────────────────────────────────── */
 #bis-btn {
-    right: 46px !important;
+    position: absolute;
+    right: 35px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 201;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    padding: 4px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+#bis-btn:hover { color: #2c85c8; }
+#bis-btn:disabled { cursor: wait; }
+
+@media (max-width: 768px) {
+    #bis-btn {
+        display: flex !important;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        z-index: 30;
+        background: transparent;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+    }
+    #bis-btn svg { width: 18px; height: 18px; }
+    #search { padding-right: 42px !important; }
 }
