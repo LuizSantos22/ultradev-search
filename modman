@@ -1,0 +1,7 @@
+app/code/community/UltraDev/Search                              app/code/community/UltraDev/Search
+app/etc/modules/UltraDev_Search.xml                             app/etc/modules/UltraDev_Search.xml
+app/design/frontend/base/default/layout/ultradev/search.xml     app/design/frontend/base/default/layout/ultradev/search.xml
+app/design/frontend/base/default/template/ultradev/search       app/design/frontend/base/default/template/ultradev/search
+app/locale/pt_BR/UltraDev_Search.csv                            app/locale/pt_BR/UltraDev_Search.csv
+skin/frontend/base/default/css/ultradev/search.css              skin/frontend/base/default/css/ultradev/search.css
+skin/frontend/base/default/js/ultradev/search                   skin/frontend/base/default/js/ultradev/search
