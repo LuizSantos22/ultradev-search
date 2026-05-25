@@ -135,33 +135,44 @@ class UltraDev_Search_Model_ImageSearch extends Mage_Core_Model_Abstract
     // ── Gemini Flash ─────────────────────────────────────────────────────
 
     protected function _callGemini($base64, $mimeType, $apiKey)
-    {
-        $model = Mage::getStoreConfig('ultradev_search/image_search/gemini_model') ?: 'gemini-2.5-flash-lite';
-        $url   = 'https://generativelanguage.googleapis.com/v1beta/models/'
-               . $model . ':generateContent?key=' . urlencode($apiKey);
+{
+    $configModel = Mage::getStoreConfig('ultradev_search/image_search/gemini_model') ?: 'gemini-2.5-flash-lite';
+    $fallbacks = array('gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite');
+    // Coloca o modelo configurado na frente
+    array_unshift($fallbacks, $configModel);
+    $fallbacks = array_values(array_unique($fallbacks));
 
-        $prompt = 'Identifique o produto nesta imagem. Retorne APENAS a marca e o modelo '
-                . 'se visível, separados por espaço. A marca tem prioridade máxima. '
-                . 'Máximo 3 palavras. Exemplos: "Ozlo Sleepbuds" ou "Nike Barcelona" ou '
-                . '"JBL Flip". Sem tipo de produto genérico, sem explicações, sem pontuação.';
+    $prompt = 'Identifique o produto nesta imagem. Retorne APENAS a marca e o modelo '
+            . 'se visível, separados por espaço. A marca tem prioridade máxima. '
+            . 'Máximo 3 palavras. Exemplos: "Ozlo Sleepbuds" ou "Nike Barcelona" ou '
+            . '"JBL Flip". Sem tipo de produto genérico, sem explicações, sem pontuação. '
+            . 'Se não tiver certeza do modelo exato, retorne apenas marca e linha do produto, sem especificar variante.';
 
-        $payload = json_encode(array(
-            'contents' => array(array(
-                'parts' => array(
-                    array('inline_data' => array('mime_type' => $mimeType, 'data' => $base64)),
-                    array('text' => $prompt),
-                )
-            ))
-        ));
+    $payload = json_encode(array(
+        'contents' => array(array(
+            'parts' => array(
+                array('inline_data' => array('mime_type' => $mimeType, 'data' => $base64)),
+                array('text' => $prompt),
+            )
+        ))
+    ));
 
+    foreach ($fallbacks as $model) {
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+             . $model . ':generateContent?key=' . urlencode($apiKey);
         $response = $this->_httpPost($url, $payload);
-        if (!$response) return false;
-
+        if (!$response) continue;
         $data = json_decode($response, true);
-        if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) return false;
-
+        // 429 = cota esgotada, tenta próximo modelo
+        if (isset($data['error']['code']) && $data['error']['code'] == 429) {
+            Mage::log('UltraDev_Search: modelo ' . $model . ' com cota esgotada, tentando próximo.', Zend_Log::WARN, 'system.log');
+            continue;
+        }
+        if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) continue;
         return trim($data['candidates'][0]['content']['parts'][0]['text']);
     }
+    return false;
+}
 
     // ── HTTP helper ──────────────────────────────────────────────────────
 
